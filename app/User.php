@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -27,8 +28,19 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
   
-  public function Todolist(  )
+  public function todolist(  )
   {
     return $this->hasMany('App\TodoList');
     }
+  
+  public function shared(  )
+  {
+    return $this->belongsToMany('App\TodoList','todo_list_user');
+    }
+  
+  public function shareTodoListWithUser($user2, $Todolist)
+  {
+  DB::table('todo_list_user')->insert(['user_id' => $user2->id,
+      'todo_list_id' => $Todolist->id]);
+}
 }

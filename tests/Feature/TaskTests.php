@@ -7,23 +7,18 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
-class RoutesTests extends TestCase
-
+class TaskTests extends TestCase
 {
+  
   use DatabaseTransactions;
-
-    /**
+  
+  /**
      * A basic test example.
      *
      * @return void
-     *
-     *
      */
-    
- /** test */
-    public function aHomeRouteShowsWhatTodo()
+    public function testExample()
     {
-      $this->visit('/')
-           ->see('What Todo??');
+        $this->assertTrue(true);
     }
 }
