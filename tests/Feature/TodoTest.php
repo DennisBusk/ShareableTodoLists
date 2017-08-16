@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
-class TodoTests extends TestCase
+class TodoTest extends TestCase
 {
   
   use DatabaseTransactions;
@@ -26,7 +26,7 @@ public function ATodoListCanAddOneTask(){
   
   $task = factory('App\Task')->create();
   
-  $TodoList->add($task);
+  $TodoList->addTask($task);
   
   $this->assertEquals(1,$TodoList->tasks()->count());
   

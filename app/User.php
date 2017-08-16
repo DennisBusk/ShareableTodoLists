@@ -32,6 +32,14 @@ class User extends Authenticatable
   {
     return $this->hasMany('App\TodoList');
     }
+  public function addTodoList($items  )
+  {
+    
+    $method = $items instanceof TodoList ? 'save' : 'saveMany';
+    
+    $this->todolist()->$method($items);
+    
+  }
   
   public function shared(  )
   {

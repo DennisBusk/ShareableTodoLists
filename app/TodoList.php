@@ -22,7 +22,7 @@ class TodoList extends Model
     return $this->hasMany('App\Task');
     }
   
-  public function add($items  )
+  public function addTask($items  )
   {
     
     $method = $items instanceof Task ? 'save' : 'saveMany';
@@ -43,5 +43,16 @@ class TodoList extends Model
     }
     
     $this->tasks()->whereIn('TodoList_id',$items->pluck('id'))->update(['TodoList_id' => null]);
+    }
+  
+  public function completedTasks(  )
+  {
+    return $this->tasks()->whereCompleted(1)->get();
+    }
+  
+  public function pendingTasks(  )
+  {
+    return $this->tasks()->whereCompleted(0)->get();
+    
     }
 }
