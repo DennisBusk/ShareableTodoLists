@@ -20,3 +20,6 @@ Route::auth();
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::post('/users/{user_id}/todolist/{list_id}/task','TaskController@create')->middleware(['web','auth']);
+Route::post('/users/{user_id}/todolist/{list_id}/task/{task_id}','TaskController@update')->middleware(['web','auth']);
