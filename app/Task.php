@@ -31,4 +31,14 @@ class Task extends Model
     $tasks->update(['completed'=>0]);
     }
   
+  public function setTitleAttribute($title)
+  {
+    $this->attributes['title'] = htmlspecialchars($title);
+    }
+  
+  public function getTitleAttributes($title)
+  {
+    return htmlspecialchars_decode ($title);
+    }
+  
 }

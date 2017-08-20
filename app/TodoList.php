@@ -55,4 +55,13 @@ class TodoList extends Model
     return $this->tasks()->whereCompleted(0)->get();
     
     }
+  public function setTitleAttribute($title)
+  {
+    $this->attributes['title'] = htmlspecialchars($title);
+  }
+  
+  public function getTitleAttributes($title)
+  {
+    return htmlspecialchars_decode ($title);
+  }
 }

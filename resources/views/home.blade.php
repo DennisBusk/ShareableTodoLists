@@ -1,40 +1,24 @@
 @extends('layouts.app')
+@push('styles')
+  <link href="{{ asset('css/chosen/chosen.css') }}" rel="stylesheet">
 
+@endpush
 @section('content')
   <div class="container">
     <div class="row">
       <div class="col-md-12">
         <div class="col-md-8">
           
-          <div class="panel panel-default">
+          <div class="panel panel-default main-panel">
             <div class="panel-heading">What Todo??
-              <button style="float:right;" type="button" class="btn btn-default btn-sm">
-                <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Tilføj
-              </button>
+              <form class="new-todo"><input name="new-todo-input" placeholder="new TodoList"></form>
             </div>
             
-            <div class="panel-body">
+            <div id="private-lists" class="panel-body">
               @Auth
-                @foreach(Auth::user()->todolist as $list)
-                  <div class="col-md-3">
-                    <div class="panel panel-default ">
-                      <div class="panel-heading">{{$list->title}}</div>
-                      <div class="panel-body">
-      
-                        <ul class="pending-tasks" data-list_id="{{$list->id}}">
-                          @foreach($list->pendingTasks() as $task)
-                            <li class="task pending toggle" data-task_id="{{$task->id}}">{{$task->title}}</li>
-                          @endforeach
-                          <li class="new-task"><input placeholder="tilføj"></li>
-                        </ul>
-                        <hr>
-                        <ul class="completed-tasks" data-list_id="{{$list->id}}">
-                          @foreach($list->completedTasks() as $task)
-                            <li class="task completed toggle" data-task_id="{{$task->id}}">{{$task->title}}</li>
-                          @endforeach
-                        </ul>
-                      </div>
-                    </div>
+                @foreach(Auth::user()->todolist()->whereNotIn('id',DB::table('todo_list_user')->where('user_id',Auth::id())->pluck('id'))->get() as $list)
+                  <div class="col-md-4">
+                    @include('partials.todolist',['list'=>$list,'type_of_list'=>'todolist'])
                   </div>
                 @endforeach
               @endauth
@@ -43,30 +27,13 @@
           </div>
         </div>
         <div class="col-md-4">
-          <div class="panel panel-default">
+          <div class=" main-panel panel panel-default">
             <div class="panel-heading">Shared Todo's</div>
             
-            <div class="panel-body">
+            <div id="shared-lists" class="panel-body">
               @foreach(Auth::user()->shared as $list)
                 <div class="col-md-10 col-md-offset-1">
-                  <div class="panel panel-default ">
-                    <div class="panel-heading">{{$list->title}}</div>
-                    <div class="panel-body">
-                      
-                      <ul class="pending-tasks" data-list_id="{{$list->id}}">
-                        @foreach($list->pendingTasks() as $task)
-                          <li class="task pending toggle" data-task_id="{{$task->id}}">{{$task->title}}</li>
-                        @endforeach
-                        <li class="new-task"><input placeholder="tilføj"></li>
-                      </ul>
-                      <hr>
-                      <ul class="completed-tasks" data-list_id="{{$list->id}}">
-                        @foreach($list->completedTasks() as $task)
-                          <li class="task completed toggle" data-task_id="{{$task->id}}">{{$task->title}}</li>
-                        @endforeach
-                      </ul>
-                    </div>
-                  </div>
+                  @include('partials.todolist',['list'=>$list,'type_of_list'=>'shared-todolist'])}}
                 </div>
               @endforeach
             </div>
@@ -75,95 +42,230 @@
       </div>
     </div>
   </div>
+  @include('partials.shareModal')
 @endsection
 
 @push('scripts')
+  <script src="{{ asset('js/chosen/chosen.jquery.js') }}"></script>
+  
   <script>
-
-    function post_task(list_id, task_id, type, input) {
-      if (task_id != '') {
-        task_id = '/'.task_id;
-      }
-      url = document.location.origin + '/users/{{Auth::id()}}/todolist/' + list_id + '/task' + task_id;
-      $.ajax({
-        type: "POST",
-        url: url,
-        data: {title: input, type: type},
-        success: function (response) {
-          console.log(response);
-          return (response['status']);
-        }
-
-      });
-    }
-    
-    
-    // toggle task completed / pending
     $(document).ready(function () {
-      $('.toggle').on('click', function () {
-        var type = '';
-        console.log($(this));
-        var task = $(this),
-            task_id = task.data('task_id'),
-            list_id = task.parent('div').data('list_id');
-        if(task.hasClass('pending')){
-          type = 'pending';
-        }
-        else if(task.hasClass('completed')){
-          type = 'completed';
-        }
-        var url = document.location.origin + '/users/{{Auth::id()}}/todolist/' + list_id + '/task/' + task_id;
+      var sent = false;
+      var old_list_id = 0;
+      var newList = '';
+
+      // toggle task completed / pending
+      function toggle() {
+
+        $('.task-title').on('click', function () {
+
+
+          // to prevent the event to fire multiple times
+          if (sent == false) {
+            sent = true;
+
+            var type = '';
+            console.log($(this));
+            var task = $(this).closest('li'),
+                task_id = task.data('task_id'),
+                list_id = task.parent('ul').data('list_id');
+            console.log(old_list_id + ' - ' + list_id);
+            if (old_list_id != list_id || CList == undefined || PList == undefined) {
+              old_list_id = list_id;
+              var CList = $('#c-' + list_id);
+              var PList = $('#p-' + list_id);
+            }
+            if (task.hasClass('pending')) {
+              newList = CList;
+              type = 'pending';
+            }
+            else if (task.hasClass('completed')) {
+              type = 'completed';
+//                var PList = $('#new-task-'+list_id);
+              newList = PList;
+            }
+            var url = document.location.origin + '/users/{{Auth::id()}}/todolists/' + list_id + '/tasks/' + task_id;
+            $.ajax({
+              type: "POST",
+              url: url,
+              data: {type: type},
+              success: function (response) {
+                console.log(response);
+                if (response['status']) {
+                  task.addClass('inTransition');
+
+                  var newTask = task;
+
+                  //remove task from list and add to other
+                  if (task.hasClass('pending')) {
+                    newList.append(newTask[0].outerHTML);
+                  }
+                  else {
+                    newList.find('#new-task-' + list_id).before(newTask[0].outerHTML);
+                  }
+                  task.remove();
+                  console.log(newList);
+                  newList.find('.inTransition').toggleClass('pending completed inTransition');
+
+                  //  to add the click event to the new li
+
+                  // to make sure the funtion works another time
+                  sent = false;
+                }
+              }
+            });
+            toggle();
+
+          }
+
+        });
+      }
+      
+      function modalForm(list_id) {
+        $('#shareModalForm').submit(function (e) {
+          e.preventDefault();
+          var form = $(this);
+          console.log(form.find('select').val());
+          var url = document.location.origin + '/users/{{Auth::id()}}/todolists/' + list_id + '/share';
+          $.ajax({
+            type: "POST",
+            url: url,
+            data: {ids: form.find('select').val()},
+            success: function (response) {
+              console.log(response);
+              location.reload();
+            }
+          });
+
+
+        })
+      }
+
+      // when submitting a new task
+      $('.new-task').submit(function (e) {
+        e.preventDefault();
+        var input = $(this).find('input').first().val();
+        var last_li = $(this).closest('li');
+        var list_id = last_li.parent('ul').data('list_id');
+        var url = document.location.origin + '/users/{{Auth::id()}}/todolists/' + list_id + '/tasks';
+        console.log(url);
+        console.log(input);
         $.ajax({
           type: "POST",
           url: url,
-          data: {type: type},
+          data: {title: input},
           success: function (response) {
             console.log(response);
             if (response['status']) {
-              var newTask = task;
+              // after getting confirmation of creation
+              last_li.before('<li class="pending" data-task_id="' + response['id'] + '"><span class="task-title">' + input + '</span><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></li>');
+              console.log($(this));
+              $(this).find('input').first().value('');
+              toggle();
+            }
+          }
+        });
+      });
 
-              //remove task from list and add to other
-              task.fadeOut().slideUp();
-              if (task.hasClass('pending')) {
-                task.parent('div').find('.completed-tasks li:last-child').append(newTask);
-                task.remove();
-                newTask.toggleClass('pending completed').fadeIn();
-              }
-              else {
-                task.parent('div').find('.pending-tasks .new-task').prepend(newTask);
-                task.remove();
-                newTask.toggleClass('pending completed').fadeIn();
-              }
+// delete tasks
+      $('li .glyphicon-remove').click(function () {
+        var task = $(this).closest('li'),
+            task_id = task.data('task_id'),
+            list_id = task.parent('ul').data('list_id'),
+            url = document.location.origin + '/users/{{Auth::id()}}/todolists/' + list_id + '/tasks/' + task_id;
+        $.ajax({
+          type: "DELETE",
+          url: url,
+          success: function (response) {
+            console.log(response);
+            if (response['status']) {
+              // after getting confirmation of creation
+              task.remove();
+            }
+          }
+        });
+
+
+      });
+
+// delete todolist
+      $('.todolist.glyphicon-remove').click(function () {
+        var list = $(this),
+            list_id = list.data('list_id'),
+            url = document.location.origin + '/users/{{Auth::id()}}/todolists/' + list_id;
+        $.ajax({
+          type: "DELETE",
+          url: url,
+          success: function (response) {
+            console.log(response);
+            if (response['status']) {
+
+              // after getting confirmation of deletion
+              list.remove();
+            }
+          }
+        });
+
+
+      });
+
+
+      //when submitting a new todolist
+      $('.new-todo').submit(function (e) {
+        e.preventDefault();
+        var input = $(this).find('input').first().val();
+        var url = document.location.origin + '/users/{{Auth::id()}}/todolists';
+        console.log(url);
+        console.log(input);
+        $.ajax({
+          type: "POST",
+          url: url,
+          data: {title: input},
+          success: function (response) {
+            console.log(response);
+            if (response['status']) {
+              // after getting confirmation of creation
+              $('#private-lists').append('<div class="col-md-4">' + response['html'] + '</div>');
+              toggle();
+            }
+          }
+        });
+      });
+
+      //when clicking the share button
+      $('.glyphicon-share').click(function () {
+        var list = $(this),
+            list_id = list.data('list_id'),
+            url = document.location.origin + '/users/{{Auth::id()}}/todolists/' + list_id + '/get_shared_with';
+        $.ajax({
+          type: "GET",
+          url: url,
+          success: function (response) {
+            console.log(response);
+            if (response['status']) {
+              var modal = $('#shareModal');
+              modal.find('.modal-title').text(response['title']);
+              modal.find('#shareModalForm').append(response['html']);
+              console.log(modal);
+              $('#sharedWithSelect').chosen();
+              $('#sharedWithSelect').on('change', function (evt, params) {
+                $(this).find('option[value="' + params['selected'] + '"]').attr('selected', true);
+                $('#sharedWithSelect').trigger('chosen:updated');
+              });
+              modal.modal('show');
+              modal.on('hidden.bs.modal', function (e) {
+                modal.find('#shareModalForm').text('');
+              });
+              modalForm(list_id);
             }
           }
         });
         });
 
-      $('.new-task input').keypress(function (ev) {
-        var input = $(this);
-        var keycode = (ev.keyCode ? ev.keyCode : ev.which);
-        if (keycode == '13') {
-              var last_li = input.parent('li.new-task'),
-              list = last_li.parent('div'),
-              list_id = list.data('list_id');
-          url = document.location.origin + '/users/{{Auth::id()}}/todolist/' + list_id + '/task';
-          $.ajax({
-            type: "POST",
-            url: url,
-            data: {title: input},
-            success: function (response) {
-              console.log(response);
-              if (response['status']) {
-                last_li.prepend('<li class="task pending toggle hidden-task" style="display:none;">todo_input.val()</li>');
-                $('.hidden-task').fadeIn().removeClass('hidden-task');
-              }
-            }
-          });
-        }
-      });
 
-      
-    })
+      toggle();
+
+    });
   
   </script>
 @endpush

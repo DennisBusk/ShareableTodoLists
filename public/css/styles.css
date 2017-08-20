@@ -6,6 +6,10 @@ html, body {
     height: 100vh;
     margin: 0;
 }
+body{
+    background-image: url('../images/background.jpg');
+    background-repeat-y: repeat;
+}
 
 .full-height {
     height: 100vh;
@@ -47,4 +51,84 @@ html, body {
 
 .m-b-md {
     margin-bottom: 30px;
+
+}
+.panel, .panel-body{
+    background-color:transparent ;
+}
+
+.completed {
+    color: green;
+}
+.tasks{
+    padding: 0;
+}
+.tasks li{
+    list-style: none;
+    padding:0;
+    margin-bottom: 5px;
+}
+li:not(.new-task):hover{
+    cursor: pointer;
+}
+.todolist {
+    background-color: #FFFFA5;
+}
+.shared-todolist{
+    background-color: #ADD8E6;
+}
+li.completed:before{
+    content: "\e067";
+    font-family: 'Glyphicons Halflings';
+    float:left;
+    font-size: 14px;
+    margin-right: 5px;
+}
+li.pending:before{
+    content: "\e157";
+    font-family: 'Glyphicons Halflings';
+    float:left;
+    font-size: 14px;
+    margin-right: 5px;
+}
+.main-panel{
+    border: none;
+}
+.list-panel .panel-heading{
+background-color:rgba(255, 255, 255, 0.46);
+    font-weight:800;
+}
+.new-task input, .new-todo input{
+    border-width: 0 0 1px 0;
+    background-color: #ededd6;
+}
+.new-todo input{
+    float: right;
+    padding: 0 5px;
+}
+.new-todo{
+    float: right;
+}
+.new-todo:before{
+    content: "\002b";
+    font-family: 'Glyphicons Halflings';
+    float:right;
+    font-size: 14px;
+    margin-left: 5px;
+    color:green;
+}
+.list-panel{
+    border: 1px solid lightgrey;
+    box-shadow: 0 15px 76px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+
+}
+.glyphicon-remove {
+    float: right;
+    color: rgba(255, 0, 0, 0.3);
+}
+.glyphicon-share {
+    float: right;
+    color: rgba(13, 255, 38, 0.3);
+    margin-right:5px;
 }

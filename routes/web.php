@@ -18,8 +18,23 @@ Route::get('/', function () {
 Route::auth();
 
 Auth::routes();
-
-Route::get('/home', 'HomeController@index')->name('home');
-
-Route::post('/users/{user_id}/todolist/{list_id}/task','TaskController@create')->middleware(['web','auth']);
-Route::post('/users/{user_id}/todolist/{list_id}/task/{task_id}','TaskController@update')->middleware(['web','auth']);
+Route::group(['middleware' => ['web','auth']], function () {
+  
+  Route::get('/home', 'HomeController@index')->name('home');
+  Route::group([ 'prefix' => '/users/{user}' ], function () {
+    
+    Route::post('/todolists', 'TodoListController@store');
+    Route::post('/todolists/{todolist}', 'TodoListController@delete');
+    Route::get('/todolists/{todolist}/get_shared_with', 'TodoListController@getSharedWith');
+    Route::post('/todolists/{todolist}/share', 'TodoListController@share');
+    
+    Route::group([ 'prefix' => '/todolists/{list_id}' ], function () {
+      
+      Route::post('/tasks', 'TaskController@store');
+      Route::post('/tasks/{task_id}', 'TaskController@update');
+      Route::delete('/tasks/{task_id}', 'TaskController@delete');
+      
+      
+    });
+  });
+});
