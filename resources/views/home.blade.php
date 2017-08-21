@@ -190,8 +190,9 @@
 
 // delete todolist
       $('.todolist.glyphicon-remove').click(function () {
-        var list = $(this),
-            list_id = list.data('list_id'),
+        var glyph = $(this)
+        list = glyph.closest('div.list-panel');
+            list_id = glyph.data('list_id'),
             url = document.location.origin + '/users/{{Auth::id()}}/todolists/' + list_id;
         $.ajax({
           type: "DELETE",

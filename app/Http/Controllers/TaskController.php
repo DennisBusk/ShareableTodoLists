@@ -50,7 +50,7 @@ class TaskController extends Controller {
   public function delete($user_id, $list_id, $task_id  )
   {
     try{
-    Task::delete($task_id);
+    Task::destroy($task_id);
   
       return [ 'status' => true ];
     } catch ( Exception $e )
