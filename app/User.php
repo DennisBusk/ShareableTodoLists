@@ -46,9 +46,9 @@ class User extends Authenticatable
     return $this->belongsToMany('App\TodoList','todo_list_user');
     }
   
-  public function shareTodoListWithUser($user2, $Todolist)
+  public function shareTodoListWithUser($user, $Todolist)
   {
-  DB::table('todo_list_user')->insert(['user_id' => $user2->id,
+  DB::table('todo_list_user')->insert(['user_id' => $user->id,
       'todo_list_id' => $Todolist->id]);
 }
 }
