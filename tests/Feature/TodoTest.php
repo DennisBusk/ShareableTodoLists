@@ -38,7 +38,7 @@ public function ATodoListCanAddOneTask(){
     
     $tasks = factory('App\Task',5)->create();
     
-    $TodoList->add($tasks);
+    $TodoList->addTask($tasks);
     
     $this->assertEquals(5,$TodoList->tasks()->count());
     

@@ -27,6 +27,7 @@ Route::group(['middleware' => ['web','auth']], function () {
     Route::delete('/todolists/{todolist}', 'TodoListController@delete');
     Route::get('/todolists/{todolist}/get_shared_with', 'TodoListController@getSharedWith');
     Route::post('/todolists/{todolist}/share', 'TodoListController@share');
+    Route::get('/todolists/{todolist}/unshare', 'TodoListController@unshare');
     
     Route::group([ 'prefix' => '/todolists/{list_id}' ], function () {
       

@@ -57,15 +57,15 @@ class TodoListController extends Controller {
   {
     $list = TodoList::find($list_id);
     
-$options = collect([]);
-    foreach ( User::where('id','!=',Auth::id())->get() as $user )
+    $options = collect([]);
+    foreach ( User::where('id', '!=', Auth::id())->get() as $user )
     {
       $options->put($user->id, $user->name);
     }
-
+    
     return [ 'status' => true,
-             'title'=> $list->title,
-             'html'   => view('partials.sharedWithSelect', [ 'list' => $list, 'options'=>$options ])->render(),
+             'title'  => $list->title,
+             'html'   => view('partials.sharedWithSelect', [ 'list' => $list, 'options' => $options ])->render(),
     ];
     
   }
@@ -75,12 +75,39 @@ $options = collect([]);
     $input = $request->all();
 //    print_r($input['ids']);
 //    exit();
-    $list  = TodoList::find($list_id);
+    $list = TodoList::find($list_id);
     try
     {
       $list->sharedWith()->sync($input['ids']);
+      $list->update([ 'shared' => 1 ]);
+      
+      return [ 'status' => true, 'status' => 'shared' ];
+      
+    } catch ( Exception $e )
+    {
+      return [ 'status' => false ];
+    }
+  }
   
-      return [ 'status' => true ];
+  public function unshare($user_id,$list_id  )
+  {
+    $list = TodoList::find($list_id);
+    try
+    {
+      if($list->user_id == $user_id)
+      {
+        $list->sharedWith()->sync([]);
+        $list->update([ 'shared' => 0 ]);
+      }else{
+        DB::table('todo_list_user')->whereUserId($user_id)->whereTodoListId($list_id)->delete();
+        if(!DB::table('todo_list_user')->whereTodoListId($list_id)->count() > 0){
+          TodoList::find($list_id)->update(['shared'=>0]);
+        }
+        
+      }
+    
+      return [ 'status' => true, 'status' => 'unshared' ];
+    
     } catch ( Exception $e )
     {
       return [ 'status' => false ];

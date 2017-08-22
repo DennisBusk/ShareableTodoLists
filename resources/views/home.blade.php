@@ -16,7 +16,7 @@
             
             <div id="private-lists" class="panel-body">
               @Auth
-                @foreach(Auth::user()->todolist()->whereNotIn('id',DB::table('todo_list_user')->where('user_id',Auth::id())->pluck('id'))->get() as $list)
+                @foreach(Auth::user()->todolist()->whereShared(0)->get() as $list)
                   <div class="col-md-4">
                     @include('partials.todolist',['list'=>$list,'type_of_list'=>'todolist'])
                   </div>
@@ -31,7 +31,7 @@
             <div class="panel-heading">Shared Todo's</div>
             
             <div id="shared-lists" class="panel-body">
-              @foreach(Auth::user()->shared as $list)
+              @foreach(Auth::user()->sharedLists() as $list)
                 <div class="col-md-10 col-md-offset-1">
                   @include('partials.todolist',['list'=>$list,'type_of_list'=>'shared-todolist'])}}
                 </div>
@@ -112,11 +112,13 @@
                   // to make sure the funtion works another time
                   sent = false;
                 }
+                toggle();
+
               }
             });
-            toggle();
 
           }
+          toggle();
 
         });
       }
@@ -131,6 +133,20 @@
             type: "POST",
             url: url,
             data: {ids: form.find('select').val()},
+            success: function (response) {
+              console.log(response);
+              location.reload();
+            }
+          });
+
+
+        });
+        $('#unshareForm').submit(function (e) {
+          e.preventDefault();
+          var url = document.location.origin + '/users/{{Auth::id()}}/todolists/' + list_id + '/unshare';
+          $.ajax({
+            type: "get",
+            url: url,
             success: function (response) {
               console.log(response);
               location.reload();
@@ -159,8 +175,9 @@
             if (response['status']) {
               // after getting confirmation of creation
               last_li.before('<li class="pending" data-task_id="' + response['id'] + '"><span class="task-title">' + input + '</span><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></li>');
-              console.log($(this));
-              $(this).find('input').first().value('');
+              console.log($('#new-task-'+list_id+' input').first());
+              console.log($('#new-task-'+list_id+' input').first().val());
+              $('#new-task-'+list_id+' input').first().val('');
               toggle();
             }
           }
@@ -189,8 +206,8 @@
       });
 
 // delete todolist
-      $('.todolist.glyphicon-remove').click(function () {
-        var glyph = $(this)
+      $('.todolist .panel-heading .glyphicon-remove').click(function () {
+        var glyph = $(this),
         list = glyph.closest('div.list-panel');
             list_id = glyph.data('list_id'),
             url = document.location.origin + '/users/{{Auth::id()}}/todolists/' + list_id;
@@ -200,9 +217,29 @@
           success: function (response) {
             console.log(response);
             if (response['status']) {
-
               // after getting confirmation of deletion
               list.remove();
+            }
+          }
+        });
+
+
+      });
+      
+      // unshare todolist
+      $('.shared-todolist .panel-heading .glyphicon-remove').click(function () {
+        var glyph = $(this),
+        list = glyph.closest('div.list-panel');
+            list_id = glyph.data('list_id'),
+            url = document.location.origin + '/users/{{Auth::id()}}/todolists/' + list_id+'/unshare';
+        $.ajax({
+          type: "get",
+          url: url,
+          success: function (response) {
+            console.log(response);
+            if (response['status']) {
+              // after getting confirmation of deletion
+              location.reload();
             }
           }
         });

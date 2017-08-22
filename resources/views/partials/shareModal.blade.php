@@ -11,6 +11,9 @@
 
         {{--<input type="submit" class="btn btn-primary" value="Save changes">--}}
       </form>
+        <form id="unshareForm">
+          <input type="submit" class="btn btn-info" value="Unshare">
+        </form>
       </div>
 
     </div>

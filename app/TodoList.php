@@ -9,7 +9,7 @@ class TodoList extends Model
 {
   
   protected $fillable = [
-      'user_id', 'title'
+      'user_id', 'title','shared'
   ];
   
   public function user(  )
@@ -33,7 +33,7 @@ class TodoList extends Model
   
   public function sharedWith(  )
   {
-    return $this->belongsToMany('App\User','todo_list_user');
+    return $this->belongsToMany('App\User','todo_list_user','todo_list_id','user_id');
     }
   
   public function remove($items  )

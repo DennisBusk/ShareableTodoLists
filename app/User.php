@@ -43,12 +43,22 @@ class User extends Authenticatable
   
   public function shared(  )
   {
-    return $this->belongsToMany('App\TodoList','todo_list_user');
+    return $this->belongsToMany('App\TodoList','todo_list_user','user_id','todo_list_id');
     }
   
-  public function shareTodoListWithUser($user, $Todolist)
+  public function shareTodoListWithUser($users, $Todolist)
   {
+    if($users instanceof User){
+      $users = collect([$users]);
+    }
+    foreach($users as $user)
   DB::table('todo_list_user')->insert(['user_id' => $user->id,
       'todo_list_id' => $Todolist->id]);
+}
+  
+  public function sharedLists(  )
+  {
+    $sharedLists = $this->shared;
+    return $sharedLists->merge($this->todolist()->whereShared(1)->get());
 }
 }

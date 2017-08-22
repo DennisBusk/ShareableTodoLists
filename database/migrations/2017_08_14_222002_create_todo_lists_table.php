@@ -17,6 +17,7 @@ class CreateTodoListsTable extends Migration
             $table->increments('id');
             $table->integer('user_id')->nullable();
             $table->string('title');
+            $table->boolean('shared')->default(0);
             $table->timestamps();
         });
     }
