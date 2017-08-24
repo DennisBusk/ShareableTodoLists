@@ -61,4 +61,8 @@ class User extends Authenticatable
     $sharedLists = $this->shared;
     return $sharedLists->merge($this->todolist()->whereShared(1)->get());
 }
+  
+  public function lastUpdated(  ) {
+    return $this->sharedLists()->orderBy('updated_at','desc')->first()->updated_at;
+}
 }

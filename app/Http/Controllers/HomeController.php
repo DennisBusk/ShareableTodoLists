@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\TodoList;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -23,6 +24,7 @@ class HomeController extends Controller
      */
     public function index()
     {
+      $last_updated = Auth::user()->sharedLists()->orderBy('updated_at','desc')->first()->updated_at;
         return view('home');
     }
 }
