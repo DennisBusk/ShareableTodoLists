@@ -1,9 +1,12 @@
 <div class="panel panel-default list-panel {{$type_of_list}}">
-  <div class="panel-heading">{{$list->title}}
+  <div class="panel-heading"><span class="list-heading">{{$list->title}}</span>
+    <div class="todolist-buttons">
     <span class="glyphicon todolist glyphicon-remove" data-list_id="{{$list->id}}" aria-hidden="true"></span>
     @if($list->user_id == Auth::id())
+      <br>
     <span class="glyphicon todolist glyphicon-share" data-list_id="{{$list->id}}" aria-hidden="true"></span>
       @endif
+    </div>
   </div>
   <div class="panel-body">
     
@@ -12,7 +15,7 @@
         <li class="pending" data-task_id="{{$task->id}}"><span class="task-title">{{$task->title}}</span><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></li>
       @endforeach
       <li id="new-task-{{$list->id}}" class="new-task">
-        <form><input class="col-md-12" name="new-task-input" placeholder="Add new task"></form>
+        <form action="#"><input class="col-md-12" name="new-task-input" placeholder="Add new task"></form>
       </li>
     </ul>
     <hr>

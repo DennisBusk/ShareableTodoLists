@@ -9,6 +9,7 @@ html, body {
 #app{
     background-image: url('../images/background.jpg');
     background-repeat-y: repeat;
+    height:100%;
 }
 
 .full-height {

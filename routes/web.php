@@ -13,7 +13,7 @@
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->middleware('guest');
 
 Route::auth();
 
@@ -28,14 +28,13 @@ Route::group(['middleware' => ['web','auth']], function () {
     Route::get('/todolists/{todolist}/get_shared_with', 'TodoListController@getSharedWith');
     Route::post('/todolists/{todolist}/share', 'TodoListController@share');
     Route::get('/todolists/{todolist}/unshare', 'TodoListController@unshare');
+    Route::get('/last_updated', 'TodoListController@lastupdated');
     
     Route::group([ 'prefix' => '/todolists/{list_id}' ], function () {
       
       Route::post('/tasks', 'TaskController@store');
       Route::post('/tasks/{task_id}', 'TaskController@update');
       Route::delete('/tasks/{task_id}', 'TaskController@delete');
-      
-      
     });
   });
 });

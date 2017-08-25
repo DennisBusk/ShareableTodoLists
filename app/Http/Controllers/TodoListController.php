@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\TodoList;
 use App\User;
+use Carbon\Carbon;
 use http\Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -94,7 +95,7 @@ class TodoListController extends Controller {
     }
   }
   
-  public function last_updated() {
+  public function lastupdated() {
     $last_updated = Auth::user()->lastUpdated();
     
     if ( Input::get('last_updated') != $last_updated ) {

@@ -25,7 +25,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-      if(($last_updated = Auth::user()->sharedLists()) && $last_updated->count() > 0){}
+      if(Auth::user()->sharedLists()->count() > 0){
+        $last_updated = Auth::user()->lastUpdated();
+      }
       else{
         $last_updated = null;
       }
