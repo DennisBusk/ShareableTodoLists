@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\TodoList;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -24,7 +25,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-      $last_updated = Auth::user()->sharedLists()->orderBy('updated_at','desc')->first()->updated_at;
-        return view('home');
+      if(($last_updated = Auth::user()->sharedLists()) && $last_updated->count() > 0){}
+      else{
+        $last_updated = null;
+      }
+        
+        return view('home',compact('last_updated'));
     }
 }
